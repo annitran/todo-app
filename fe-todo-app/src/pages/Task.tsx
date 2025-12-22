@@ -29,7 +29,7 @@ export default function Task() {
         <thead>
           <tr>
             <th className="w-10"></th>
-
+            <th className="w-auto">Task</th>
             <th className="w-40 text-center"></th>
             <th className="w-10 text-center">⭐</th>
           </tr>
