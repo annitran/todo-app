@@ -26,6 +26,7 @@ func TodoRoutes() *gin.Engine {
 	r := router.Group("/api/v1")
 	{
 		r.GET("/tasks", taskHandler.GetTodoList)
+		r.POST("/tasks", taskHandler.CreateTask)
 	}
 
 	return router

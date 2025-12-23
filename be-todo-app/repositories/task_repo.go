@@ -9,6 +9,7 @@ import (
 
 type TaskRepository interface {
 	GetList() ([]models.Task, error)
+	Create(task *models.Task) error
 }
 
 type taskRepository struct {
@@ -29,4 +30,8 @@ func (r *taskRepository) GetList() ([]models.Task, error) {
 		Find(&todoList).Error
 
 	return todoList, err
+}
+
+func (r *taskRepository) Create(task *models.Task) error {
+	return r.db.Create(task).Error
 }

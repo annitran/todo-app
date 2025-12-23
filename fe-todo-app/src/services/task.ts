@@ -11,3 +11,7 @@ export interface ITask {
 export const getTodoList = () => {
   return api.get<{ todoList: ITask[] }>("/tasks");
 };
+
+export const createTask = (name: string) => {
+  return api.post<{ task: ITask }>("/tasks", { name });
+};
