@@ -1,18 +1,16 @@
 import { useState } from "react"
 import { useTaskStore } from "../stores/useTaskStore"
+import { createTask } from "../services/task"
 
-interface Props {
-  label?: string
-}
-
-export default function AddTaskButton({ label }: Props) {
-  const addTask = useTaskStore((s) => s.addTask)
+export default function AddTaskButton() {
+  const addTask = useTaskStore((s) => s.add)
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
 
-  const handleSubmit = async () => {
+  const handleAdd = async () => {
     if (!name.trim()) return
-    await addTask(name)
+    const res = await createTask(name)
+    addTask(res.data.task)
     setName("")
     setOpen(false)
   }
@@ -24,8 +22,7 @@ export default function AddTaskButton({ label }: Props) {
         className="btn btn-circle btn-primary fixed bottom-6 right-6 shadow-lg z-50"
         onClick={() => setOpen(true)}
       >
-        <span className="text-lg">+</span>
-        {label && <span>{label}</span>}
+        <span className="text-lg" >+</span>
       </button>
 
       {/* Modal */}
@@ -42,7 +39,7 @@ export default function AddTaskButton({ label }: Props) {
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSubmit()
+                  if (e.key === "Enter") handleAdd()
                 }}
               />
 
@@ -55,7 +52,7 @@ export default function AddTaskButton({ label }: Props) {
                 </button>
                 <button
                   className="btn btn-primary"
-                  onClick={handleSubmit}
+                  onClick={handleAdd}
                 >
                   Thêm
                 </button>
