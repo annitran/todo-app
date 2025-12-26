@@ -6,13 +6,23 @@ export default function AddTaskButton() {
   const addTask = useTaskStore((s) => s.add)
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const handleAdd = async () => {
-    if (!name.trim()) return
-    const res = await createTask(name)
-    addTask(res.data.task)
-    setName("")
-    setOpen(false)
+    if (!name.trim() || loading) return
+
+    try {
+      setLoading(true)
+
+      const res = await createTask(name)
+      addTask(res.data.task)
+    } catch (err) {
+      console.error("Add task failed!", err)
+    } finally {
+      setLoading(false)
+      setName("")
+      setOpen(false)
+    }
   }
 
   return (
@@ -38,6 +48,7 @@ export default function AddTaskButton() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
+                disabled={loading}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleAdd()
                 }}
@@ -47,14 +58,17 @@ export default function AddTaskButton() {
                 <button
                   className="btn btn-ghost"
                   onClick={() => setOpen(false)}
+                  disabled={loading}
                 >
                   Huỷ
                 </button>
+
                 <button
                   className="btn btn-primary"
                   onClick={handleAdd}
+                  disabled={loading}
                 >
-                  Thêm
+                  {loading ? "Đang thêm..." : "Thêm"}
                 </button>
               </div>
             </div>

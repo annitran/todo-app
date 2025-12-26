@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useTaskStore } from "../stores/useTaskStore"
 import { getTodoList } from "../services/task"
 import AddTaskButton from "../components/AddTaskButton"
@@ -7,15 +7,26 @@ import TaskRow from "../components/Task-Row"
 export default function Task() {
   const tasks = useTaskStore((s) => s.tasks)
   const init = useTaskStore((s) => s.init)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchTasks = async () => {
-      const res = await getTodoList()
-      init(res.data.todoList)
+      try {
+        const res = await getTodoList()
+        init(res.data.todoList)
+      } catch (err) {
+        console.error("Load tasks failed!", err)
+      } finally {
+        setLoading(false)
+      }
     }
 
     fetchTasks()
   }, [init])
+
+  if (loading) {
+    return <div className="text-center mt-10">Loading...</div>
+  }
 
   return (
     <div className="overflow-x-auto max-w-3xl mx-auto px-2">
