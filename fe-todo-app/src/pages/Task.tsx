@@ -1,30 +1,37 @@
 import { useEffect, useState } from "react"
-import { getTodoList, type ITask } from "../services/task"
-
-function timeFromNow(date?: string) {
-  if (!date) return "-"
-  const diff = Date.now() - new Date(date).getTime()
-  const m = Math.floor(diff / 60000)
-  if (m < 1) return "vừa xong"
-  if (m < 60) return `${m} phút trước`
-  const h = Math.floor(m / 60)
-  if (h < 24) return `${h} giờ trước`
-  return `${Math.floor(h / 24)} ngày trước`
-}
+import { useTaskStore } from "../stores/useTaskStore"
+import { getTodoList } from "../services/task"
+import AddTaskButton from "../components/AddTaskButton"
+import TaskRow from "../components/Task-Row"
 
 export default function Task() {
-  const [tasks, setTasks] = useState<ITask[]>([])
+  const tasks = useTaskStore((s) => s.tasks)
+  const init = useTaskStore((s) => s.init)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await getTodoList();
-      setTasks(res.data.todoList);
-    };
-    fetchData();
-  }, []);
+    const fetchTasks = async () => {
+      try {
+        const res = await getTodoList()
+        init(res.data.todoList)
+      } catch (err) {
+        console.error("Load tasks failed!", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTasks()
+  }, [init])
+
+  if (loading) {
+    return <div className="text-center mt-10">Loading...</div>
+  }
 
   return (
     <div className="overflow-x-auto max-w-3xl mx-auto px-2">
+      <AddTaskButton />
+
       <table className="table table-zebra">
         <thead>
           <tr>
@@ -37,36 +44,7 @@ export default function Task() {
 
         <tbody>
           {tasks.map((task) => (
-            <tr key={task.id} className="hover">
-              {/* checkbox */}
-              <td className="w-12">
-                <input
-                  type="checkbox"
-                  className="checkbox checkbox-sm checkbox-primary rounded-full"
-                  checked={task.is_complete}
-                  readOnly
-                />
-              </td>
-
-              {/* task name */}
-              <td
-                className={`${
-                  task.is_complete ? "line-through text-gray-400" : ""
-                }`}
-              >
-                {task.name}
-              </td>
-
-              {/* time */}
-              <td className="w-40 text-right text-sm text-gray-500">
-                {timeFromNow(task.created_at)}
-              </td>
-
-              {/* star */}
-              <td className="w-12 text-center">
-                <button className="btn btn-ghost btn-xs">⭐</button>
-              </td>
-            </tr>
+            <TaskRow key={task.id} task={task}></TaskRow>
           ))}
         </tbody>
       </table>

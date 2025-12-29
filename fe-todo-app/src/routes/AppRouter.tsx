@@ -7,6 +7,8 @@ export default function AppRouter() {
       <Routes>
         <Route element={<AppLayout />}>
           <Route index element={<Task />} />
+
+          <Route path="task-list" element={<Task />} />
         </Route>
       </Routes>
   )
