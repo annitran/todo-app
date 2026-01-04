@@ -27,6 +27,8 @@ func TodoRoutes() *gin.Engine {
 	{
 		r.GET("/tasks", taskHandler.GetTodoList)
 		r.POST("/tasks", taskHandler.CreateTask)
+		r.PUT("/tasks/:id", taskHandler.UpdateTask)
+		r.DELETE("/tasks/:id", taskHandler.DeleteTask)
 	}
 
 	return router

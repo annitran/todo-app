@@ -5,6 +5,8 @@ import (
 	"be-todo-app/repositories"
 
 	"github.com/gin-gonic/gin"
+	"strconv"
+	"time"
 )
 
 type taskHandler struct {
@@ -13,6 +15,12 @@ type taskHandler struct {
 
 type createTaskRequest struct {
 	Name string `json:"name" binding:"required"`
+}
+
+type updateTaskRequest struct {
+	Name        string     `json:"name" binding:"required"`
+	IsComplete  bool       `json:"is_complete"`
+	CompletedAt *time.Time `json:"completed_at"`
 }
 
 func NewTaskHandler(taskRepo repositories.TaskRepository) *taskHandler {
@@ -52,5 +60,58 @@ func (h *taskHandler) CreateTask(c *gin.Context) {
 
 	c.JSON(201, gin.H{
 		"task": task,
+	})
+}
+
+// Update Task
+func (h *taskHandler) UpdateTask(c *gin.Context) {
+	idParam := c.Param("id")
+	idUint64, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Invalid task id!"})
+		return
+	}
+
+	id := uint(idUint64)
+	var req updateTaskRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	task, err := h.taskRepo.Update(
+		id,
+		req.Name,
+		req.IsComplete,
+		req.CompletedAt,
+	)
+
+	if err != nil {
+		c.JSON(500, gin.H{"error": "Update task failed!"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"task": task,
+	})
+}
+
+// Delete Task
+func (h *taskHandler) DeleteTask(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 64)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "Invalid task id"})
+		return
+	}
+
+	if err := h.taskRepo.Delete(uint(id)); err != nil {
+		c.JSON(500, gin.H{"error": "Delete task failed!"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"message": "Task deleted!",
 	})
 }

@@ -15,3 +15,11 @@ export const getTodoList = () => {
 export const createTask = (name: string) => {
   return api.post<{ task: ITask }>("/tasks", { name });
 };
+
+export const updateTask = (id: number, task : ITask) => {
+  return api.put<{ task: ITask }>(`/tasks/${id}`, task);
+};
+
+export const deleteTask = (id: number) => {
+  return api.delete(`/tasks/${id}`);
+};
